@@ -1,32 +1,44 @@
-/* eslint-disable react/no-unstable-nested-components */
 import {FlatList, View, StyleSheet, Text, Pressable} from 'react-native';
 import React from 'react';
-import cart from '../data/cart';
 import CartListItem from '../components/CartListItem';
+import {useSelector} from 'react-redux';
+import {
+  selectSubtotal,
+  selectDeliveryPrice,
+  selectTotal,
+} from '../Redux/slice/cartSlice';
 
-const shoppingCartTotal = () => (
-  <View style={styles.totalsContainer}>
-    <View style={styles.row}>
-      <Text style={styles.textStyle}>Subtotal</Text>
-      <Text style={styles.textStyle}>410,00 US$</Text>
+const ShoppingCartTotal = () => {
+  const subTotal = useSelector(selectSubtotal);
+  const DeliveryPrice = useSelector(selectDeliveryPrice);
+  const total = useSelector(selectTotal);
+  console.log('total', total);
+  return (
+    <View style={styles.totalsContainer}>
+      <View style={styles.row}>
+        <Text style={styles.textStyle}>Subtotal</Text>
+        <Text style={styles.textStyle}>{subTotal} US$</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.textStyle}>Delivery</Text>
+        <Text style={styles.textStyle}>{DeliveryPrice} US$</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.textBold}>Total</Text>
+        <Text style={styles.textBold}>{total} US$</Text>
+      </View>
     </View>
-    <View style={styles.row}>
-      <Text style={styles.textStyle}>Delivery</Text>
-      <Text style={styles.textStyle}>10,00 US$</Text>
-    </View>
-    <View style={styles.row}>
-      <Text style={styles.textBold}>Total</Text>
-      <Text style={styles.textBold}>420,00 US$</Text>
-    </View>
-  </View>
-);
+  );
+};
 const ShoppingCartScreen = () => {
+  const cart = useSelector(state => state.cart.items);
+
   return (
     <>
       <FlatList
         data={cart}
         renderItem={({item}) => <CartListItem cartItem={item} />}
-        ListFooterComponent={shoppingCartTotal}
+        ListFooterComponent={ShoppingCartTotal}
       />
       <Pressable style={styles.buttonStyle}>
         <Text style={styles.buttonText}>Checkout</Text>

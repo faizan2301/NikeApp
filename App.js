@@ -1,13 +1,13 @@
 import {StyleSheet, View} from 'react-native';
 import React from 'react';
-import ProductDetailsScreen from './src/screens/ProductDetailsScreen';
-import ShoppingCartScreen from './src/screens/ShoppingCartScreen';
 import Navigation from './src/navigation';
+import {Provider} from 'react-redux';
+import {store} from './src/Redux/store';
 const App = () => {
   return (
-    <View style={styles.container}>
+    <Provider store={store}>
       <Navigation />
-    </View>
+    </Provider>
   );
 };
 

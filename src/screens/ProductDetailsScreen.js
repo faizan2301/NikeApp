@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import {
   StyleSheet,
   View,
@@ -8,14 +9,19 @@ import {
   ScrollView,
   Pressable,
 } from 'react-native';
-import products from '../data/products';
 import React from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-const ProductDetailsScreen = () => {
-  const product = products[0];
+import {useDispatch, useSelector} from 'react-redux';
+import {cartSlice} from '../Redux/slice/cartSlice';
+const ProductDetailsScreen = props => {
+  const {navigation} = props;
+  // const product = products[0];
   const {width} = useWindowDimensions();
+  const product = useSelector(state => state.products.selectedProduct);
+  const dispatch = useDispatch();
   const addToCart = () => {
-    console.log('add to cart');
+    dispatch(cartSlice.actions.addCartItem({product}));
+    navigation.navigate('ShoppingCart');
   };
   return (
     <View>
