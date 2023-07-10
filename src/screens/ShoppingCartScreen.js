@@ -1,18 +1,27 @@
-import {FlatList, View, StyleSheet, Text, Pressable} from 'react-native';
+import {
+  FlatList,
+  View,
+  StyleSheet,
+  Text,
+  Pressable,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 import React from 'react';
 import CartListItem from '../components/CartListItem';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {
   selectSubtotal,
   selectDeliveryPrice,
   selectTotal,
+  cartSlice,
 } from '../Redux/slice/cartSlice';
+import {useCreateOrderMutation} from '../Redux/slice/apiSlice';
 
 const ShoppingCartTotal = () => {
   const subTotal = useSelector(selectSubtotal);
   const DeliveryPrice = useSelector(selectDeliveryPrice);
   const total = useSelector(selectTotal);
-  console.log('total', total);
   return (
     <View style={styles.totalsContainer}>
       <View style={styles.row}>
@@ -32,7 +41,36 @@ const ShoppingCartTotal = () => {
 };
 const ShoppingCartScreen = () => {
   const cart = useSelector(state => state.cart.items);
+  const subTotal = useSelector(selectSubtotal);
+  const DeliveryPrice = useSelector(selectDeliveryPrice);
+  const total = useSelector(selectTotal);
+  const [createOrder, {error, isLoading}] = useCreateOrderMutation();
+  const dispatch = useDispatch();
+  const onCreateOrder = async () => {
+    var response = await createOrder({
+      items: cart,
+      subTotal: subTotal,
+      delivery: DeliveryPrice,
+      total: total,
+      customer: {
+        name: 'Mohd faizan ',
+        address: 'home',
+        email: 'faizan@test.com',
+      },
+    });
+    console.log('Done', response.data);
+    if (response.data.status === 'OK') {
+      Alert.alert(
+        'Order has been placed',
+        `Your reference is: ${response.data.data.ref}`,
+      );
+      dispatch(cartSlice.actions.clearShoppingCart());
+    }
 
+    if (error) {
+      console.log(error);
+    }
+  };
   return (
     <>
       <FlatList
@@ -40,8 +78,14 @@ const ShoppingCartScreen = () => {
         renderItem={({item}) => <CartListItem cartItem={item} />}
         ListFooterComponent={ShoppingCartTotal}
       />
-      <Pressable style={styles.buttonStyle}>
-        <Text style={styles.buttonText}>Checkout</Text>
+      <Pressable onPress={onCreateOrder} style={styles.buttonStyle}>
+        <Text style={styles.buttonText}>
+          {isLoading ? (
+            <ActivityIndicator size={22} color="white" animating={true} />
+          ) : (
+            'Checkout'
+          )}
+        </Text>
       </Pressable>
     </>
   );

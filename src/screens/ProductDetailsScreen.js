@@ -8,17 +8,34 @@ import {
   Text,
   ScrollView,
   Pressable,
+  ActivityIndicator,
 } from 'react-native';
 import React from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useDispatch, useSelector} from 'react-redux';
 import {cartSlice} from '../Redux/slice/cartSlice';
+import {useGetProductQuery} from '../Redux/slice/apiSlice';
 const ProductDetailsScreen = props => {
   const {navigation} = props;
-  // const product = products[0];
+
   const {width} = useWindowDimensions();
-  const product = useSelector(state => state.products.selectedProduct);
+  const productId = useSelector(state => state.products.id);
+
   const dispatch = useDispatch();
+  const {data, isLoading, error} = useGetProductQuery(productId);
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
+  if (error) {
+    console.log(error);
+    return (
+      <Text style={{color: 'red', fontSize: 20}}>
+        Error fetching data {error.error}
+      </Text>
+    );
+  }
+  const product = data.data;
+  console.log(productId);
   const addToCart = () => {
     dispatch(cartSlice.actions.addCartItem({product}));
     navigation.navigate('ShoppingCart');
@@ -55,7 +72,11 @@ const ProductDetailsScreen = props => {
       <Pressable style={styles.buttonStyle} onPress={addToCart}>
         <Text style={styles.buttonText}>Add to cart</Text>
       </Pressable>
-      <Pressable style={styles.icon}>
+      <Pressable
+        style={styles.icon}
+        onPress={() => {
+          navigation.pop();
+        }}>
         <Ionicons name="close" size={24} color="white" />
       </Pressable>
     </View>
