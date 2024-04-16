@@ -91,15 +91,17 @@ const ShoppingCartScreen = () => {
     }
 
     // 2. Initialize the Payment sheet
-    console.log('paymentIntent', response?.data?.paymentIntent);
+    console.log('paymentIntent', response?.data);
     const initResponse = await initPaymentSheet({
       merchantDisplayName: 'EMF',
-      customFlow: true,
+      customerId: response?.data?.customer,
+      customerEphemeralKeySecret: response?.data?.ephemeralKey,
       paymentIntentClientSecret: response?.data?.paymentIntent,
     });
 
     // 3. Present the Payment Sheet from Stripe
     var presentPaymentSheetError = await presentPaymentSheet();
+    console.log('Error ', presentPaymentSheetError?.error);
     const {error: stripeError} = await confirmPaymentSheetPayment();
     console.log(
       'stripeError',
