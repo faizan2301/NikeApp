@@ -14,7 +14,6 @@ export const productSlice = createSlice({
       state.selectedProduct = state.products.find(p => p.id === productId);
     },
     setSelectedId: (state, action) => {
-      console.log('Redux', action.payload);
       const id = action.payload;
       state.id = id;
     },

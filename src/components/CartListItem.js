@@ -5,19 +5,22 @@ import {useDispatch} from 'react-redux';
 import {cartSlice} from '../Redux/slice/cartSlice';
 const CartListItem = ({cartItem}) => {
   const dispatch = useDispatch();
+
   const increaseQuantity = () => {
+    console.log('increaseQuantity');
     dispatch(
       cartSlice.actions.changeQuantity({
-        productId: cartItem.product.id,
+        productId: cartItem.product._id,
         count: 1,
       }),
     );
   };
 
   const decreaseQuantity = () => {
+    console.log('decreaseQuantity', cartItem.product);
     dispatch(
       cartSlice.actions.changeQuantity({
-        productId: cartItem.product.id,
+        productId: cartItem.product._id,
         count: -1,
       }),
     );

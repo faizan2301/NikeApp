@@ -16,7 +16,11 @@ import {
   selectTotal,
   cartSlice,
 } from '../Redux/slice/cartSlice';
-import {useCreateOrderMutation} from '../Redux/slice/apiSlice';
+import {
+  useCreateOrderMutation,
+  useCreatePaymentIntentMutation,
+} from '../Redux/slice/apiSlice';
+import {useStripe} from '@stripe/stripe-react-native';
 
 const ShoppingCartTotal = () => {
   const subTotal = useSelector(selectSubtotal);
@@ -42,9 +46,13 @@ const ShoppingCartTotal = () => {
 const ShoppingCartScreen = () => {
   const cart = useSelector(state => state.cart.items);
   const subTotal = useSelector(selectSubtotal);
+  const {initPaymentSheet, presentPaymentSheet, confirmPaymentSheetPayment} =
+    useStripe();
   const DeliveryPrice = useSelector(selectDeliveryPrice);
   const total = useSelector(selectTotal);
   const [createOrder, {error, isLoading}] = useCreateOrderMutation();
+  const [checkout, {error: checkoutError, isLoading: checkoutLoading}] =
+    useCreatePaymentIntentMutation();
   const dispatch = useDispatch();
   const onCreateOrder = async () => {
     var response = await createOrder({
@@ -58,7 +66,6 @@ const ShoppingCartScreen = () => {
         email: 'faizan@test.com',
       },
     });
-    console.log('Done', response.data);
     if (response.data.status === 'OK') {
       Alert.alert(
         'Order has been placed',
@@ -71,6 +78,43 @@ const ShoppingCartScreen = () => {
       console.log(error);
     }
   };
+  const onCheckout = async () => {
+    if (subTotal <= 0) {
+      return;
+    }
+    // 1. Create a payment intent
+    var response = await checkout({amount: Math.floor(total * 100)});
+    console.log(response);
+    if (response?.error) {
+      Alert.alert('Something went wrong');
+      return;
+    }
+
+    // 2. Initialize the Payment sheet
+    console.log('paymentIntent', response?.data?.paymentIntent);
+    const initResponse = await initPaymentSheet({
+      merchantDisplayName: 'EMF',
+      customFlow: true,
+      paymentIntentClientSecret: response?.data?.paymentIntent,
+    });
+
+    // 3. Present the Payment Sheet from Stripe
+    var presentPaymentSheetError = await presentPaymentSheet();
+    const {error: stripeError} = await confirmPaymentSheetPayment();
+    console.log(
+      'stripeError',
+      `Error: ${stripeError.code} ${stripeError.message} `,
+    );
+    console.log(`Error stripeError ${JSON.stringify(stripeError)}`);
+
+    if (initResponse.error) {
+      console.log('initResponse er', initResponse?.error?.message);
+      Alert.alert('Something went wrong');
+      return;
+    }
+    // 4. If payment ok -> create the order
+    // onCreateOrder();
+  };
   return (
     <>
       <FlatList
@@ -78,7 +122,7 @@ const ShoppingCartScreen = () => {
         renderItem={({item}) => <CartListItem cartItem={item} />}
         ListFooterComponent={ShoppingCartTotal}
       />
-      <Pressable onPress={onCreateOrder} style={styles.buttonStyle}>
+      <Pressable onPress={onCheckout} style={styles.buttonStyle}>
         <Text style={styles.buttonText}>
           {isLoading ? (
             <ActivityIndicator size={22} color="white" animating={true} />

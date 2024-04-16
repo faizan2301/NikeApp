@@ -1,5 +1,5 @@
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
-const baseUrl = 'http://192.168.1.18:3000/';
+const baseUrl = 'http://192.168.1.21:3000/';
 // const baseUrl = 'https://nikeappbackend.onrender.com/';
 
 // Define a service using a base URL and expected endpoints
@@ -24,6 +24,14 @@ export const apiSlice = createApi({
     getOrderByRef: builder.query({
       query: ref => `orders/${ref}`,
     }),
+    //Payment
+    createPaymentIntent: builder.mutation({
+      query: newOrder => ({
+        url: 'payments/intent',
+        method: 'POST',
+        body: newOrder,
+      }),
+    }),
   }),
 });
 // Export hooks for usage in functional components, which are
@@ -33,4 +41,5 @@ export const {
   useGetProductQuery,
   useCreateOrderMutation,
   useGetOrderByRefQuery,
+  useCreatePaymentIntentMutation,
 } = apiSlice;

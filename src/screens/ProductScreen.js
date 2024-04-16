@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import React from 'react';
+import Animated from 'react-native-reanimated';
 import {useDispatch, useSelector} from 'react-redux';
 import {productSlice} from '../Redux/slice/productSlice';
 import {useGetProductsQuery} from '../Redux/slice/apiSlice';
@@ -21,7 +22,6 @@ const ProductScreen = props => {
     return <ActivityIndicator />;
   }
   if (error) {
-    console.log(error);
     return (
       <Text style={{color: 'red', fontSize: 20}}>
         Error fetching data {error.error}
@@ -38,10 +38,15 @@ const ProductScreen = props => {
             style={styles.itemContainer}
             onPress={() => {
               //update selected product
+
               dipatch(productSlice.actions.setSelectedId(item._id));
               navigation.navigate('ProductDetails', {id: item._id});
             }}>
-            <Image source={{uri: item.image}} style={styles.image} />
+            <Animated.Image
+              sharedTransitionTag={`image-${item._id}`}
+              source={{uri: item.image}}
+              style={styles.image}
+            />
           </Pressable>
         )}
         keyExtractor={item => item._id}

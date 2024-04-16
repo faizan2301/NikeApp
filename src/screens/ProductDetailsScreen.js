@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import React from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Animated from 'react-native-reanimated';
 import {useDispatch, useSelector} from 'react-redux';
 import {cartSlice} from '../Redux/slice/cartSlice';
 import {useGetProductQuery} from '../Redux/slice/apiSlice';
@@ -27,7 +28,6 @@ const ProductDetailsScreen = props => {
     return <ActivityIndicator />;
   }
   if (error) {
-    console.log(error);
     return (
       <Text style={{color: 'red', fontSize: 20}}>
         Error fetching data {error.error}
@@ -35,7 +35,6 @@ const ProductDetailsScreen = props => {
     );
   }
   const product = data.data;
-  console.log(productId);
   const addToCart = () => {
     dispatch(cartSlice.actions.addCartItem({product}));
     navigation.navigate('ShoppingCart');
@@ -44,6 +43,11 @@ const ProductDetailsScreen = props => {
     <View>
       <ScrollView>
         {/* Image Carousel */}
+        {/* <Animated.Image
+          source={{uri: product.image}}
+          sharedTransitionTag={`image-${product._id}`}
+          style={{width: width, aspectRatio: 1}}
+        /> */}
         <FlatList
           data={product.images}
           horizontal
