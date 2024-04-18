@@ -97,6 +97,10 @@ const ShoppingCartScreen = () => {
       customerId: response?.data?.customer,
       customerEphemeralKeySecret: response?.data?.ephemeralKey,
       paymentIntentClientSecret: response?.data?.paymentIntent,
+      allowsDelayedPaymentMethods: true,
+      defaultBillingDetails: {
+        name: 'Jane Doe',
+      },
     });
 
     // 3. Present the Payment Sheet from Stripe
